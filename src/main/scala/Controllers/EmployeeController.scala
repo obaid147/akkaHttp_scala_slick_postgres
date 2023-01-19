@@ -14,25 +14,47 @@ abstract class EmployeeControllerComponent {
   def insertEmployeeController(data: String): Future[Employee]
 
   def getAllEmployees(): Future[Seq[Employee]]
+
+  def getEmployeeById(id: Int): Future[Option[Employee]]
+
+  def deleteById(id: Int): Future[Int]
+
+  def updateById(id: Int, e: Employee): Future[Int]
 }
 
+// google guice,
 object EmployeeController extends EmployeeControllerComponent {
+
+   def updateById(id: Int, row: Employee) = {
+    ImplEmployeeRepository.updateById(id, row)
+
+  }
+  def getAllEmployees() = {
+    ImplEmployeeRepository.getAll
+  }
 
   implicit val f = DefaultFormats
 
   def insertEmployeeController(data: String): Future[Employee] = {
     val employeeTry: Try[Employee] = Try(parse(data).extract[Employee])
     employeeTry match {
-      case Success(s) => {
+      case Success(s) =>
         ImplEmployeeRepository.insertItem(s)
-      }
-      case Failure(f) => Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION, message = "some msg", exception = new Exception(f.getCause)))
+
+      case Failure(f) =>
+        Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
+        message = "some msg", exception = new Exception(f.getCause)))
     }
   }
 
-  def getAllEmployees() = {
-    ImplEmployeeRepository.getEmployees
+  override def getEmployeeById(id: Int): Future[Option[Employee]] = {
+    ImplEmployeeRepository.getById(id)
   }
+
+  override def deleteById(id: Int): Future[Int] = {
+    ImplEmployeeRepository.deleteById(id)
+  }
+
 
 }
 

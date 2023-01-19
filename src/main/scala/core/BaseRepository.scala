@@ -1,4 +1,4 @@
-package com.yadu.core
+package core
 
 import slick.driver.PostgresDriver
 import slick.lifted.{CanBeQueryCondition, Rep, TableQuery}
@@ -13,8 +13,8 @@ import PostgresDriver.api._
 
 object DriverHelper {
   val user = "postgres"
-  val url = "jdbc:postgresql://localhost:5432/LocalDB"
-  val password = "admin"
+  val url = "jdbc:postgresql://localhost:5432/mydatabase"
+  val password = "wadefff"
   val jdbcDriver = "org.postgresql.Driver"
   val db = Database.forURL(url, user, password, driver = jdbcDriver)
 }
@@ -33,6 +33,7 @@ trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
   val query: PostgresDriver.api.type#TableQuery[T]
 
   def getByIdQuery(id: Long) = {
+    val x = query.filter(_.id === id)
     query.filter(_.id === id).filter(_.isDeleted === false)
    // query.filter(x => x.id === id &&&x.isDeleted === false)
   }
@@ -55,7 +56,7 @@ trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
   }
 
   def updateByIdQuery(id: Long, row: E) = {
-    query.filter(_.id === id).filter(_.isDeleted === false).update(row)
+    query.filter(_.id === id).update(row)
   }
 
 }

@@ -20,14 +20,23 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
 
   implicit val f = DefaultFormats
 
-  val routes = path("employee") {
+  val routes =
+    (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
+      get {
+        complete {
+          controller.getEmployeeById(id).map { result =>
+            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+          }
+        }
+      }
+    } ~ path("employee") {
     post {
-      headerValueByName("apiKey") { token =>
+      headerValueByName("apiKey") { token => // Save an employee
         authorize(validateApiKey(token)) {
           entity(as[String]) { data =>
             complete {
               controller.insertEmployeeController(data).map { result =>
-                  HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+                HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
               }
             }
           }
@@ -35,13 +44,31 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
       }
     } ~ get {
       complete {
-        controller.getAllEmployees().map { result =>
-            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+        controller.getAllEmployees().map { result => // get all employees
+          //println(result)
+          HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
       }
-
     }
-  }
+  } ~ (path("employee" / IntNumber) | parameter("id".as[Int]))  { id => // delete an employee by updating IsDeleted Field
+      delete {
+        complete {
+          controller.deleteById(id).map { result =>
+            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+          }
+        }
+      } ~ put {
+        entity(as[String]) { data =>
+          complete {
+            val emp = parse(data).extract[Employee]
+            controller.updateById(id, emp).map { result =>
+              HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+            }
+          }
+        }
+      }
+    }
+
   /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {
        complete {
@@ -72,14 +99,16 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
            ImplEmployeeRepository.getEmployeeByName(name).map { result =>
              HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
            }
-
          }
        }
      }
    }*/
 
   def validateApiKey(apiKey: String): Boolean = {
-    val apiKeysJson = ConfigFactory.load().getString("apiKeys").trim
+    //println("----aa---")
+    //val apiKeysJson = ConfigFactory.load().getString("apiKeys").trim
+   // println("----aa---")
+
     //add other validations here
     true
   }

@@ -1,4 +1,4 @@
-package com.yadu.core
+package core
 
 import slick.driver.PostgresDriver.api._
 

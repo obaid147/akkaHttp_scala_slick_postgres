@@ -2,13 +2,17 @@ name := "MyProject"
 
 version := "1.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.8"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.slick" % "slick_2.11" % "3.2.0-M1",
-  "com.typesafe.akka" %% "akka-stream-experimental" % "1.0",
-  "com.typesafe.akka" %% "akka-http-core-experimental" % "1.0",
-  "com.typesafe.akka" %% "akka-http-experimental" % "1.0",
-  "org.json4s" %% "json4s-jackson" % "3.2.11","joda-time" % "joda-time" % "2.8.2"
+  "com.typesafe.slick" %% "slick" % "3.4.1",
+  "org.slf4j" % "slf4j-nop" % "2.0.5",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.19",
+  "com.typesafe.akka" %% "akka-http" % "10.1.7",
+  "org.json4s" %% "json4s-jackson" % "4.0.6","joda-time" % "joda-time" % "2.12.2",
+  "org.postgresql" % "postgresql" % "42.2.12"
+  /*"com.typesafe.akka" %% "akka-http-core" % "1.0",
+  //"com.typesafe.akka" %% "akka-http" % "1.0",
+  */
 )
 
