@@ -14,8 +14,8 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
 
   implicit val system = ActorSystem.create("Test")
   implicit val materializer = ActorMaterializer()
-
   implicit val f = DefaultFormats
+
 
   val routes =
   /*(path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById

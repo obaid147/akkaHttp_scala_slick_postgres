@@ -1,21 +1,16 @@
 package Controllers
 
 import spray.json._
-import DefaultJsonProtocol._
-import Controllers.models.Employee
+
+import Controllers.models.{Employee, EmployeeJsonProtocol}
 import repositories.models.{Employee => EmployeeResult}
-import akka.actor.ActorRef
-import org.json4s.{DefaultFormats, JValue}
-import org.json4s.jackson.JsonMethods.parse
 import repositories.ImplEmployeeRepository
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-object MyFormat extends DefaultJsonProtocol {
-  implicit val formatData = jsonFormat5(Employee)
-}
-abstract class EmployeeControllerComponent {
+
+abstract class EmployeeControllerComponent  {
   def insertEmployeeController(data: String): Future[EmployeeResult]
 
   def getAllEmployees(): Future[Seq[EmployeeResult]]
@@ -27,40 +22,16 @@ abstract class EmployeeControllerComponent {
     def updateById(id: Int, e: Employee): Future[Int]*/
 }
 
-// google guice,
 object EmployeeController extends EmployeeControllerComponent {
-/*
-   def updateById(id: Int, row: Employee) = {
-    ImplEmployeeRepository.updateById(id, row)
 
-  }*/
+  import EmployeeJsonProtocol._
 
   def getAllEmployees() = {
     ImplEmployeeRepository.getAll
   }
-
-  /*implicit val f = DefaultFormats      // JACKSON lib
-
-  def insertEmployeeController(data: String): Future[EmployeeResult] = {
-    val employeeTry: Try[Employee] = Try(parse(data).extract[Employee])
-    val x: JValue = parse(data)
-    import MyFormat._
-    val emp = data.parseJson.convertTo[Employee]
-    //ImplEmployeeRepository.insertItem(emp)
-    employeeTry match {      case Success(s) =>
-        ImplEmployeeRepository.insertItem(s)
-
-      case Failure(f) =>
-        println("===1======")
-        println(f.getMessage)
-        println("===2======")
-        Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
-        message = "some msg", exception = new Exception(f.getCause)))
-    }
-  }*/
-
   def insertEmployeeController(data: String): Future[EmployeeResult] = {  // spray-json
-    import MyFormat._
+
+
     val employeeTry = Try(data.parseJson.convertTo[Employee])
 
     employeeTry match {
@@ -68,11 +39,17 @@ object EmployeeController extends EmployeeControllerComponent {
         ImplEmployeeRepository.insertItem(s)
 
       case Failure(f) =>
+        println(f.getMessage)
         Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
           message = "some msg", exception = new Exception(f.getCause)))
     }
   }
 
+  /*
+     def updateById(id: Int, row: Employee) = {
+      ImplEmployeeRepository.updateById(id, row)
+
+    }*/
 /*  override def getEmployeeById(id: Int): Future[Option[Employee]] = {
     ImplEmployeeRepository.getById(id)
   }
