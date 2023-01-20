@@ -1,15 +1,12 @@
 package rest
 
 import Controllers.EmployeeControllerComponent
-import Entities.Employee
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, MediaTypes, StatusCodes}
 import akka.http.scaladsl.server.Directives
 import akka.stream.ActorMaterializer
-import com.typesafe.config.ConfigFactory
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Extraction}
-import repositories.ImplEmployeeRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -21,7 +18,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
   implicit val f = DefaultFormats
 
   val routes =
-    (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
+  /*(path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
       get {
         complete {
           controller.getEmployeeById(id).map { result =>
@@ -29,7 +26,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
           }
         }
       }
-    } ~ path("employee") {
+    } ~*/ path("employee") {
     post {
       headerValueByName("apiKey") { token => // Save an employee
         authorize(validateApiKey(token)) {
@@ -50,7 +47,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
         }
       }
     }
-  } ~ (path("employee" / IntNumber) | parameter("id".as[Int]))  { id => // delete an employee by updating IsDeleted Field
+  }/* ~ (path("employee" / IntNumber) | parameter("id".as[Int]))  { id => // delete an employee by updating IsDeleted Field
       delete {
         complete {
           controller.deleteById(id).map { result =>
@@ -68,8 +65,8 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
         }
       }
     }
-
-  /*~ path("employee" / "employeeId" / LongNumber) { id =>
+*/
+    /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {
        complete {
          ImplEmployeeRepository.deleteRecord(id).map { result =>
@@ -102,18 +99,17 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
          }
        }
      }
-   }*/
+   }
+  }*/
 
-  def validateApiKey(apiKey: String): Boolean = {
-    //println("----aa---")
-    //val apiKeysJson = ConfigFactory.load().getString("apiKeys").trim
-   // println("----aa---")
+    def validateApiKey(apiKey: String): Boolean = {
+      //println("----aa---")
+      //val apiKeysJson = ConfigFactory.load().getString("apiKeys").trim
+      // println("----aa---")
 
-    //add other validations here
-    true
-  }
+      //add other validations here
+      true
+    }
 
-  case class ErrorMessageContainer(message: String, ex: Option[String] = None, code: String = "")
-
-
+    case class ErrorMessageContainer(message: String, ex: Option[String] = None, code: String = "")
 }

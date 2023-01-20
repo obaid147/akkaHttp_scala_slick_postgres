@@ -7,14 +7,13 @@ import scala.reflect._
 /**
   * Created by yadu on 7/2/16.
   */
-trait BaseEntity {
-  val id: Long
+trait BaseEntity { // removed id
   val isDeleted: Boolean //soft delete
 }
 
-trait WorkflowBaseEntity extends BaseEntity{
+/*trait WorkflowBaseEntity extends BaseEntity{
   val isApproved:Boolean
-}
+}*/
 
 abstract class BaseTable[E: ClassTag](tag: Tag, schemaName: Option[String], tableName: String)
   extends Table[E](tag, schemaName, tableName) {

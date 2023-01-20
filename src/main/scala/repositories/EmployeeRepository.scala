@@ -1,32 +1,41 @@
 package repositories
 
+import Controllers.models.Employee
+import repositories.models.{Employee => DbEmployee}
 import Entities._
 import core.BaseRepository
 import slick.lifted.TableQuery
-import Entities.Employee
 import Entities.EmployeeTable
+import org.joda.time.DateTime
+
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
-abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, Employee](TableQuery[EmployeeTable]){
+abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmployee](TableQuery[EmployeeTable]){
 
-  def insertItem(row: Employee): Future[Employee] = {
-    super.save(row)
+  def insertItem(row: Employee): Future[DbEmployee] = {
+    val userId = 10
+    val timeStamp = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
+    val saveData = DbEmployee(row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
+    super.save(saveData)
   }
+
+  override def getAll: Future[Seq[DbEmployee]] = super.getAll
 
   /*def getEmployees = {
     //super.getAll
     Future.successful(Seq(Employee(1, "obaid", false)))
   }*/
 
-  override def getById(id: Long): Future[Option[Employee]] = {
+  /*override def getById(id: Long): Future[Option[Employee]] = {
     /*val superRes = super.getById(id)
     superRes.map(_.map(_.copy(id = 1)))*/
     super.getById(id)
   }
 
-  override def getAll: Future[Seq[Employee]] = super.getAll
 
   override def save(row: Employee): Future[Employee] = super.save(row)
 
@@ -36,7 +45,7 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, Employe
 
   override def deleteById(id: Long) = {
     super.deleteById(id)
-  }
+  }*/
 
 
   /*
