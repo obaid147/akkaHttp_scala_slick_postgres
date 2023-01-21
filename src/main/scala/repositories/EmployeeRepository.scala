@@ -30,22 +30,22 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     Future.successful(Seq(Employee(1, "obaid", false)))
   }*/
 
-  /*override def getById(id: Long): Future[Option[Employee]] = {
+  override def getById(id: Long): Future[Option[DbEmployee]] = {
     /*val superRes = super.getById(id)
     superRes.map(_.map(_.copy(id = 1)))*/
     super.getById(id)
   }
 
+  /*
+    override def save(row: Employee): Future[Employee] = super.save(row)
 
-  override def save(row: Employee): Future[Employee] = super.save(row)
+    override def updateById(id: Long, row: Employee): Future[Int] = {
+      super.updateById(id, row)
+    }
 
-  override def updateById(id: Long, row: Employee): Future[Int] = {
-    super.updateById(id, row)
-  }
-
-  override def deleteById(id: Long) = {
-    super.deleteById(id)
-  }*/
+    override def deleteById(id: Long) = {
+      super.deleteById(id)
+    }*/
 
 
   /*

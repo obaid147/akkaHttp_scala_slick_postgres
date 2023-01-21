@@ -18,7 +18,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
 
 
   val routes =
-  /*(path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
+  (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
       get {
         complete {
           controller.getEmployeeById(id).map { result =>
@@ -26,7 +26,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
           }
         }
       }
-    } ~*/ path("employee") {
+    } ~ path("employee") {
     post {
       headerValueByName("apiKey") { token => // Save an employee
         authorize(validateApiKey(token)) {
