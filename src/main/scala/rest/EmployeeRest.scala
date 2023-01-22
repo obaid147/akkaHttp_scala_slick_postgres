@@ -2,12 +2,11 @@ package rest
 
 import Controllers.EmployeeControllerComponent
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, MediaTypes, StatusCodes}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, MediaTypes, StatusCodes}
 import akka.http.scaladsl.server.Directives
 import akka.stream.ActorMaterializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Extraction}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
@@ -15,7 +14,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
   implicit val system = ActorSystem.create("Test")
   implicit val materializer = ActorMaterializer()
   implicit val f = DefaultFormats
-
+  import spray.json._
 
   val routes =
   (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
@@ -42,19 +41,19 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
     } ~ get {
       complete {
         controller.getAllEmployees().map { result => // get all employees
-          //println(result)
           HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
       }
     }
-  }/* ~ (path("employee" / IntNumber) | parameter("id".as[Int]))  { id => // delete an employee by updating IsDeleted Field
-      delete {
-        complete {
-          controller.deleteById(id).map { result =>
-            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
-          }
+  } ~ (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // delete an employee by updating IsDeleted Field
+    delete {
+      complete {
+        controller.deleteById(id).map { result =>
+          HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
-      } ~ put {
+      }
+    }
+  }/*~ put {
         entity(as[String]) { data =>
           complete {
             val emp = parse(data).extract[Employee]
@@ -64,7 +63,6 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
           }
         }
       }
-    }
 */
     /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {

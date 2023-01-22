@@ -42,10 +42,10 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     override def updateById(id: Long, row: Employee): Future[Int] = {
       super.updateById(id, row)
     }
-
+  */
     override def deleteById(id: Long) = {
       super.deleteById(id)
-    }*/
+    }
 
 
   /*

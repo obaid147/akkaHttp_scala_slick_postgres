@@ -16,10 +16,10 @@ abstract class EmployeeControllerComponent  {
   def getAllEmployees(): Future[Seq[EmployeeResult]]
 
     def getEmployeeById(id: Int): Future[Option[EmployeeResult]]
-  /*
+
       def deleteById(id: Int): Future[Int]
 
-      def updateById(id: Int, e: Employee): Future[Int]*/
+  /* def updateById(id: Int, e: Employee): Future[Int]*/
 }
 
 object EmployeeController extends EmployeeControllerComponent {
@@ -53,10 +53,9 @@ object EmployeeController extends EmployeeControllerComponent {
   override def getEmployeeById(id: Int): Future[Option[EmployeeResult]] = {
     ImplEmployeeRepository.getById(id)
   }
-  /*
     override def deleteById(id: Int): Future[Int] = {
       ImplEmployeeRepository.deleteById(id)
-    }*/
+    }
 
 
 }
