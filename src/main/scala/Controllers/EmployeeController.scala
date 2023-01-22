@@ -1,25 +1,25 @@
 package Controllers
 
 import spray.json._
-
 import Controllers.models.{Employee, EmployeeJsonProtocol}
 import repositories.models.{Employee => EmployeeResult}
 import repositories.ImplEmployeeRepository
 
+import java.util.UUID
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 
 abstract class EmployeeControllerComponent  {
-  def insertEmployeeController(data: String): Future[EmployeeResult]
+  def insertEmployeeController(data: String): Future[Option[EmployeeResult]]
 
   def getAllEmployees(): Future[Seq[EmployeeResult]]
 
-    def getEmployeeById(id: Int): Future[Option[EmployeeResult]]
+  def getEmployeeById(uuid: UUID): Future[Option[EmployeeResult]]
 
-      def deleteById(id: Int): Future[Int]
+  def deleteById(id: Int): Future[Int]
 
-  /* def updateById(id: Int, e: Employee): Future[Int]*/
+  def updateById(id: Int, e: EmployeeResult): Future[Int]
 }
 
 object EmployeeController extends EmployeeControllerComponent {
@@ -29,7 +29,7 @@ object EmployeeController extends EmployeeControllerComponent {
   def getAllEmployees() = {
     ImplEmployeeRepository.getAll
   }
-  def insertEmployeeController(data: String): Future[EmployeeResult] = {  // spray-json
+  def insertEmployeeController(data: String): Future[Option[EmployeeResult]] = {  // spray-json
 
 
     val employeeTry = Try(data.parseJson.convertTo[Employee])
@@ -45,13 +45,12 @@ object EmployeeController extends EmployeeControllerComponent {
     }
   }
 
-  /*
-     def updateById(id: Int, row: Employee) = {
+     def updateById(id: Int, row: EmployeeResult) = {
       ImplEmployeeRepository.updateById(id, row)
 
-    }*/
-  override def getEmployeeById(id: Int): Future[Option[EmployeeResult]] = {
-    ImplEmployeeRepository.getById(id)
+    }
+  override def getEmployeeById(uuid: UUID): Future[Option[EmployeeResult]] = {
+    ImplEmployeeRepository.getEmpById(uuid)
   }
     override def deleteById(id: Int): Future[Int] = {
       ImplEmployeeRepository.deleteById(id)

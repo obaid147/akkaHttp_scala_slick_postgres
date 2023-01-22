@@ -2,22 +2,22 @@ package rest
 
 import Controllers.EmployeeControllerComponent
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, MediaTypes, StatusCodes}
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, MediaTypes, StatusCodes}
+import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Extraction}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
 
-  implicit val system = ActorSystem.create("Test")
-  implicit val materializer = ActorMaterializer()
-  implicit val f = DefaultFormats
-  import spray.json._
+  implicit val system: ActorSystem = ActorSystem.create("Test")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val f: DefaultFormats.type = DefaultFormats
 
-  val routes =
-  (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // getById
+  val routes: Route =
+  path("employee" / JavaUUID) { id =>
       get {
         complete {
           controller.getEmployeeById(id).map { result =>
@@ -52,18 +52,17 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
           HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
       }
-    }
-  }/*~ put {
-        entity(as[String]) { data =>
-          complete {
-            val emp = parse(data).extract[Employee]
-            controller.updateById(id, emp).map { result =>
-              HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
-            }
+    } /*~ put {
+      entity(as[String]) { data =>
+        complete {
+          val emp = parse(data).extract[DbEmployee]
+          controller.updateById(id, emp).map { result =>
+            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
           }
         }
       }
-*/
+    }*/
+  }
     /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {
        complete {

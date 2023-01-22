@@ -2,13 +2,12 @@ package core
 
 import slick.driver.PostgresDriver.api._
 
+import java.util.UUID
 import scala.reflect._
 
-/**
-  * Created by yadu on 7/2/16.
-  */
-trait BaseEntity { // removed id
-  val isDeleted: Boolean //soft delete
+trait BaseEntity {
+  val isDeleted: Boolean
+  val uuid: UUID
 }
 
 /*trait WorkflowBaseEntity extends BaseEntity{
@@ -19,6 +18,7 @@ abstract class BaseTable[E: ClassTag](tag: Tag, schemaName: Option[String], tabl
   extends Table[E](tag, schemaName, tableName) {
   val classOfEntity = classTag[E].runtimeClass
   val id: Rep[Long] = column[Long]("Id", O.PrimaryKey, O.AutoInc)
+  val uuid: Rep[UUID] = column[UUID]("uuid")
   val isDeleted: Rep[Boolean] = column[Boolean]("IsDeleted", O.Default(false)) //soft delete
 }
 

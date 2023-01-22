@@ -6,19 +6,21 @@ import slick.jdbc.PostgresProfile.api._
 import slick.lifted.{Rep, TableQuery, Tag}
 
 import java.sql.Timestamp
+import java.util.UUID
 import scala.concurrent.Future
 
 class EmployeeTable(_tableTag: Tag) extends BaseTable[Employee](_tableTag, Some("public"), "employee") {
-  def * = (firstName, lastName, address, phone_number, age,
+  def * = (uuid, firstName, lastName, address, phone_number, age,
     createdAt, createdBy, isDeleted, updatedAt, updatedBy) <> (Employee.tupled, Employee.unapply)
 
-  def ? = (Rep.Some(firstName),Rep.Some(lastName),Rep.Some(address),
+  def ? = (Rep.Some(uuid), Rep.Some(firstName),Rep.Some(lastName),Rep.Some(address),
     Rep.Some(phone_number),Rep.Some(age),Rep.Some(createdAt),
     Rep.Some(createdBy),Rep.Some(isDeleted),Rep.Some(updatedAt),Rep.Some(updatedBy)).shaped.<>({ r =>  import r._; _1.map(_ =>
     Employee.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get, _8.get , _9.get,
-      _10.get))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
+      _10.get, _11.get))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
   override val id: Rep[Long] = column[Long]("employeeid", O.AutoInc, O.PrimaryKey)
+  override val uuid: Rep[UUID] = column[UUID]("uuid")
   val firstName: Rep[String] = column[String]("firstname")
   val lastName = column[String]("last_name")
   val address = column[String]("address")

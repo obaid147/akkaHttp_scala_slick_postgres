@@ -7,9 +7,7 @@ import scala.concurrent.Future
 import scala.reflect._
 import PostgresDriver.api._
 
-/**
-  * Created by yadu on 7/2/16.
-  */
+import java.util.UUID
 
 object DriverHelper {
   val user = "postgres"
@@ -20,22 +18,21 @@ object DriverHelper {
 }
 
 trait BaseRepositoryComponent[T <: BaseTable[E], E <: BaseEntity] {
-  def getById(id: Long) : Future[Option[E]]
+  def getById(uuid: UUID) : Future[Option[E]]
   def getAll : Future[Seq[E]]
   def filter[C <: Rep[_]](expr: T => C)(implicit wt: CanBeQueryCondition[C]): Future[Seq[E]]
   def save(row: E) : Future[E]
   def deleteById(id: Long) : Future[Int]
   def updateById(id: Long, row: E) : Future[Int]
 }
-//todo:: try to intall and connnect to potgres
+
 trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
 
   val query: PostgresDriver.api.type#TableQuery[T]
 
-  def getByIdQuery(id: Long) = {
-    val x = query.filter(_.id === id)
-    query.filter(_.id === id).filter(_.isDeleted === false)
-   // query.filter(x => x.id === id &&&x.isDeleted === false)
+  def getByIdQuery(uuid: UUID) = {
+    query.filter(x => x.uuid === uuid && x.isDeleted === false)
+
   }
 
   def getAllQuery = {
@@ -72,8 +69,8 @@ abstract class BaseRepository[T <: BaseTable[E], E <: BaseEntity : ClassTag](cla
     db.run(getAllQuery.result)
   }
 
-  def getById(id: Long): Future[Option[E]] = {
-    db.run(getByIdQuery(id).result.headOption)
+  def getById(uuid: UUID): Future[Option[E]] = {
+    db.run(getByIdQuery(uuid).result.headOption)
   }
 
   def filter[C <: Rep[_]](expr: T => C)(implicit wt: CanBeQueryCondition[C]) = {

@@ -2,25 +2,30 @@ package repositories
 
 import Controllers.models.Employee
 import repositories.models.{Employee => DbEmployee}
-import Entities._
 import core.BaseRepository
 import slick.lifted.TableQuery
 import Entities.EmployeeTable
-import org.joda.time.DateTime
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
+import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmployee](TableQuery[EmployeeTable]){
 
-  def insertItem(row: Employee): Future[DbEmployee] = {
+  def insertItem(row: Employee): Future[Option[DbEmployee]] = {
     val userId = 10
+    val uuid = UUID.randomUUID()
     val timeStamp = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
-    val saveData = DbEmployee(row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
-    super.save(saveData)
+    val saveData = DbEmployee(uuid, row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
+
+    //todo: we have to do this in transaction
+    for {
+      _ <- save(saveData)
+      result <- getById(uuid)
+    } yield result
   }
 
   override def getAll: Future[Seq[DbEmployee]] = super.getAll
@@ -30,22 +35,19 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     Future.successful(Seq(Employee(1, "obaid", false)))
   }*/
 
-  override def getById(id: Long): Future[Option[DbEmployee]] = {
+  def getEmpById(uuid: UUID): Future[Option[DbEmployee]] = {
     /*val superRes = super.getById(id)
     superRes.map(_.map(_.copy(id = 1)))*/
-    super.getById(id)
+    getById(uuid)
   }
 
-  /*
-    override def save(row: Employee): Future[Employee] = super.save(row)
+  override def updateById(id: Long, row: DbEmployee): Future[Int] = {
+    super.updateById(id, row)
+  }
 
-    override def updateById(id: Long, row: Employee): Future[Int] = {
-      super.updateById(id, row)
-    }
-  */
-    override def deleteById(id: Long) = {
-      super.deleteById(id)
-    }
+  override def deleteById(id: Long) = {
+    super.deleteById(id)
+  }
 
 
   /*
