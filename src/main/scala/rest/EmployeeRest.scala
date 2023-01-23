@@ -48,17 +48,17 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
       }
     }
   } ~ path("employee" / JavaUUID) { id => // delete an employee by updating IsDeleted Field
-    /*delete {
+    delete {
       complete {
         controller.deleteById(id.toString).map { result =>
           HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
       }
-    } ~ */ put {
+    } ~  put {
       entity(as[String]) { data =>
         complete {
-          val emp = parse(data).extract[DbEmployee]
-          controller.putEmployee(id.toString, emp).map { result =>
+          //val emp = parse(data).extract[DbEmployee]
+          controller.putEmployee(data).map { result =>
             HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
           }
         }

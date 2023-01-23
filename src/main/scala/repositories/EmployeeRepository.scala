@@ -25,11 +25,11 @@ import scala.util.{Failure, Success}
 
 abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmployee](TableQuery[EmployeeTable]){
 
-  import Controllers.models.PatchEmployee
+  import Controllers.models.{PatchEmployee, PutEmployee}
   def patch(row: PatchEmployee) = {
 
     val emp = getEmpById(row.uuid)
-    if (emp.map(_.isDefined) == Future(false)) throw new IllegalArgumentException("Employee Does not exist!!!")
+    //if (emp.map(_.isDefined) == Future(false)) throw new IllegalArgumentException("Employee Does not exist!!!")
 
     val createdBy = 10L
     val lastNameFuture = emp.map(_.map(_.lastName)).map(_.getOrElse(""))
@@ -59,9 +59,11 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
 
   }
 
-  def putEmployeeById(id: String, row: DbEmployee)= {
+  def putEmployeeById(id: String, row: PutEmployee)= {
     val updatedBy = Some(20L)
     val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
+    val createdBy = 10L
+
 
     super.updateById(id,
       DbEmployee(
@@ -71,9 +73,9 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
         row.address,
         row.phoneNumber,
         row.age,
-        row.createdAt,
-        row.createdBy,
-        row.isDeleted,
+        Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())),
+        createdBy,
+        false,
         updatedAt,
         updatedBy))
     //MAKE SURE EMPOLYEE UR ABOUT TO UPDATE EXIT IN DB OR NOT ELSE THROW EEROR TO USER WITH APPROPIATE MESSAGE
@@ -116,7 +118,7 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     super.updateById(id, row)
   }*/
 
-  override def deleteById(id: Long) = {
+  override def deleteById(id: String) = {
     super.deleteById(id)
   }
 

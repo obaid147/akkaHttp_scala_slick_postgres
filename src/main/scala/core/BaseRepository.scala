@@ -48,8 +48,8 @@ trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
     //query.returning(query ) += row
   }
 
-  def deleteByIdQuery(id: Long) = {
-    query.filter(_.id === id).map(_.isDeleted).update(true)
+  def deleteByIdQuery(id: String) = {
+    query.filter(_.uuid === id).map(_.isDeleted).update(true)
   }
 
   def updateByIdQuery(id: String, row: E) = {
@@ -85,7 +85,7 @@ abstract class BaseRepository[T <: BaseTable[E], E <: BaseEntity : ClassTag](cla
     db.run(updateByIdQuery(id, row))
   }
 
-  def deleteById(id: Long) = {
+  def deleteById(id: String) = {
     db.run(deleteByIdQuery(id))
   }
 

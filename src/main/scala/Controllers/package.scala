@@ -1,5 +1,7 @@
 import spray.json._
 import spray.json.DefaultJsonProtocol._
+import java.sql.Timestamp
+
 
 package object Controllers {
 
@@ -33,6 +35,34 @@ package object Controllers {
         "address",
         "age")
     }
-  }
 
+    case class PutEmployee(uuid: String,
+                           firstName: String,
+                           lastName: String,
+                           address: String,
+                           phoneNumber: String,
+                           age: Long)
+
+    object EmployeePutJsonProtocol extends DefaultJsonProtocol {
+      implicit object TimestampFormat extends JsonFormat[Timestamp] {
+        def write(obj: Timestamp) = JsNumber(obj.getTime)
+
+        def read(json: JsValue) = json match {
+          case JsNumber(time) => new Timestamp(time.toLong)
+          case _ => throw DeserializationException("Timestamp expected")
+        }
+      }
+
+      implicit val employeePutRepoFormat = jsonFormat(
+        PutEmployee,
+        "uuid",
+        "first_name",
+        "last_name",
+        "address",
+        "phone_number",
+        "age"
+      )
+    }
+
+  }
 }
