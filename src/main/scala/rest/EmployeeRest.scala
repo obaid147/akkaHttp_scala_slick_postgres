@@ -7,6 +7,8 @@ import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Extraction}
+import Controllers.models.PatchEmployee
+import repositories.models.{Employee => DbEmployee}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -20,7 +22,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
   path("employee" / JavaUUID) { id =>
       get {
         complete {
-          controller.getEmployeeById(id).map { result =>
+          controller.getEmployeeById(id.toString).map { result =>
             HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
           }
         }
@@ -45,23 +47,31 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
         }
       }
     }
-  } ~ (path("employee" / IntNumber) | parameter("id".as[Int])) { id => // delete an employee by updating IsDeleted Field
-    delete {
+  } ~ path("employee" / JavaUUID) { id => // delete an employee by updating IsDeleted Field
+    /*delete {
       complete {
-        controller.deleteById(id).map { result =>
+        controller.deleteById(id.toString).map { result =>
           HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
         }
       }
-    } /*~ put {
+    } ~ */ put {
       entity(as[String]) { data =>
         complete {
           val emp = parse(data).extract[DbEmployee]
-          controller.updateById(id, emp).map { result =>
+          controller.putEmployee(id.toString, emp).map { result =>
             HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
           }
         }
       }
-    }*/
+    } ~ patch {
+    entity(as[String]) { data =>
+      complete {
+        controller.patchEmployee(data).map { result =>
+          HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+        }
+      }
+    }
+  }
   }
     /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {

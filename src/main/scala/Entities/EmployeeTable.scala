@@ -20,7 +20,7 @@ class EmployeeTable(_tableTag: Tag) extends BaseTable[Employee](_tableTag, Some(
       _10.get, _11.get))) }, (_: Any) => throw new Exception("Inserting into ? projection not supported."))
 
   override val id: Rep[Long] = column[Long]("employeeid", O.AutoInc, O.PrimaryKey)
-  override val uuid: Rep[UUID] = column[UUID]("uuid")
+  override val uuid: Rep[String] = column[String]("uuid")
   val firstName: Rep[String] = column[String]("firstname")
   val lastName = column[String]("last_name")
   val address = column[String]("address")

@@ -12,16 +12,83 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
+/** PUT
+ * create a method putEmployee here and pass DbEmployee argument
+ * then inside putEmplyee create updated_by and updated_at fields with values and then create DB Employee case class
+ */
+
+/**
+ * PATCH
+  * 2. create a method here patchEmployee(create a case class PatchEMpoyee{address, age, firstName}) -- PATCH call from UI
+ * 2 B.
+ */
 
 abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmployee](TableQuery[EmployeeTable]){
 
+  import Controllers.models.PatchEmployee
+  def patch(row: PatchEmployee) = {
+
+    val emp = getEmpById(row.uuid)
+    if (emp.map(_.isDefined) == Future(false)) throw new IllegalArgumentException("Employee Does not exist!!!")
+
+    val createdBy = 10L
+    val lastNameFuture = emp.map(_.map(_.lastName)).map(_.getOrElse(""))
+    val phoneNumberFuture = emp.map(_.map(_.phoneNumber)).map(_.getOrElse(""))
+
+    val updateFuture = for {
+      lastName <- lastNameFuture
+      phoneNumber <- phoneNumberFuture
+    } yield (lastName, phoneNumber)
+
+    updateFuture.flatMap {
+      case (lastName, phoneNumber) =>
+        super.updateById(
+          row.uuid,
+          DbEmployee(
+            row.uuid,
+            row.firstName,
+            lastName,
+            row.address,
+            phoneNumber,
+            row.age,
+            Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())),
+            createdBy
+          )
+        )
+    }
+
+  }
+
+  def putEmployeeById(id: String, row: DbEmployee)= {
+    val updatedBy = Some(20L)
+    val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
+
+    super.updateById(id,
+      DbEmployee(
+        row.uuid,
+        row.firstName,
+        row.lastName,
+        row.address,
+        row.phoneNumber,
+        row.age,
+        row.createdAt,
+        row.createdBy,
+        row.isDeleted,
+        updatedAt,
+        updatedBy))
+    //MAKE SURE EMPOLYEE UR ABOUT TO UPDATE EXIT IN DB OR NOT ELSE THROW EEROR TO USER WITH APPROPIATE MESSAGE
+
+
+  }
+
   def insertItem(row: Employee): Future[Option[DbEmployee]] = {
     val userId = 10
-    val uuid = UUID.randomUUID()
+    val uuid = UUID.randomUUID().toString
     val timeStamp = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
     val saveData = DbEmployee(uuid, row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
 
     //todo: we have to do this in transaction
+    //todo: use UUID instead of string for uuid unique column
     for {
       _ <- save(saveData)
       result <- getById(uuid)
@@ -35,15 +102,19 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     Future.successful(Seq(Employee(1, "obaid", false)))
   }*/
 
-  def getEmpById(uuid: UUID): Future[Option[DbEmployee]] = {
+  def getEmpById(uuid: String): Future[Option[DbEmployee]] = {
     /*val superRes = super.getById(id)
     superRes.map(_.map(_.copy(id = 1)))*/
     getById(uuid)
   }
 
-  override def updateById(id: Long, row: DbEmployee): Future[Int] = {
+  /**
+   *
+   * change name everywhere to PUT instead of UPDATE
+   */
+  /*override def putEmployee(id: UUID, row: DbEmployee): Future[Int] = {
     super.updateById(id, row)
-  }
+  }*/
 
   override def deleteById(id: Long) = {
     super.deleteById(id)

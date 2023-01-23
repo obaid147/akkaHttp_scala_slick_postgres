@@ -7,7 +7,7 @@ import scala.reflect._
 
 trait BaseEntity {
   val isDeleted: Boolean
-  val uuid: UUID
+  val uuid: String
 }
 
 /*trait WorkflowBaseEntity extends BaseEntity{
@@ -18,7 +18,7 @@ abstract class BaseTable[E: ClassTag](tag: Tag, schemaName: Option[String], tabl
   extends Table[E](tag, schemaName, tableName) {
   val classOfEntity = classTag[E].runtimeClass
   val id: Rep[Long] = column[Long]("Id", O.PrimaryKey, O.AutoInc)
-  val uuid: Rep[UUID] = column[UUID]("uuid")
+  val uuid: Rep[String] = column[String]("uuid")
   val isDeleted: Rep[Boolean] = column[Boolean]("IsDeleted", O.Default(false)) //soft delete
 }
 

@@ -23,10 +23,16 @@ package object Controllers {
         "age")
     }
 
+    case class PatchEmployee(uuid: String, firstName: String, address:String, age: Long)
 
+    object PatchEmployeeJsonProtocol extends DefaultJsonProtocol {
+      implicit val patchEmployeeFormat = jsonFormat(
+        PatchEmployee,
+        "uuid",
+        "first_name",
+        "address",
+        "age")
+    }
   }
-
-
-
 
 }

@@ -1,10 +1,7 @@
 import core.BaseEntity
-import org.joda.time.DateTime
 import spray.json._
 import spray.json.DefaultJsonProtocol._
-
 import java.sql.Timestamp
-import java.util.UUID
 
 
 package object repositories {
@@ -12,7 +9,7 @@ package object repositories {
    object models {
 
      case class Employee(
-                          uuid: UUID,
+                          uuid: String,
                           firstName: String,
                           lastName: String,
                           address: String,
@@ -25,5 +22,30 @@ package object repositories {
                           updatedBy: Option[Long] = None
                         ) extends BaseEntity
 
-                         }
+     /*object EmployeeRepoJsonProtocol extends DefaultJsonProtocol {
+       implicit object TimestampFormat extends JsonFormat[Timestamp] {
+         def write(obj: Timestamp) = JsNumber(obj.getTime)
+
+         def read(json: JsValue) = json match {
+           case JsNumber(time) => new Timestamp(time.toLong)
+           case _ => throw DeserializationException("Timestamp expected")
+         }
+       }
+       implicit val employeeRepoFormat = jsonFormat(
+         Employee,
+         "uuid",
+         "first_name",
+         "last_name",
+         "address",
+         "phone_number",
+         "age",
+         "created_at",
+         "created_by",
+         "is_deleted",
+         "updated_at",
+         "updated_by"
+       )
+     }*/
+
+   }
 }

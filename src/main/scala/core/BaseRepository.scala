@@ -18,19 +18,19 @@ object DriverHelper {
 }
 
 trait BaseRepositoryComponent[T <: BaseTable[E], E <: BaseEntity] {
-  def getById(uuid: UUID) : Future[Option[E]]
+  def getById(uuid: String) : Future[Option[E]]
   def getAll : Future[Seq[E]]
   def filter[C <: Rep[_]](expr: T => C)(implicit wt: CanBeQueryCondition[C]): Future[Seq[E]]
   def save(row: E) : Future[E]
   def deleteById(id: Long) : Future[Int]
-  def updateById(id: Long, row: E) : Future[Int]
+  def updateById(id: String, row: E) : Future[Int]
 }
 
 trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
 
   val query: PostgresDriver.api.type#TableQuery[T]
 
-  def getByIdQuery(uuid: UUID) = {
+  def getByIdQuery(uuid: String) = {
     query.filter(x => x.uuid === uuid && x.isDeleted === false)
 
   }
@@ -52,8 +52,8 @@ trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
     query.filter(_.id === id).map(_.isDeleted).update(true)
   }
 
-  def updateByIdQuery(id: Long, row: E) = {
-    query.filter(_.id === id).update(row)
+  def updateByIdQuery(id: String, row: E) = {
+    query.filter(_.uuid === id).update(row)
   }
 
 }
@@ -69,7 +69,7 @@ abstract class BaseRepository[T <: BaseTable[E], E <: BaseEntity : ClassTag](cla
     db.run(getAllQuery.result)
   }
 
-  def getById(uuid: UUID): Future[Option[E]] = {
+  def getById(uuid: String): Future[Option[E]] = {
     db.run(getByIdQuery(uuid).result.headOption)
   }
 
@@ -81,7 +81,7 @@ abstract class BaseRepository[T <: BaseTable[E], E <: BaseEntity : ClassTag](cla
     db.run(saveQuery(row))
   }
 
-  def updateById(id: Long, row: E) = {
+  def updateById(id: String, row: E) = {
     db.run(updateByIdQuery(id, row))
   }
 
