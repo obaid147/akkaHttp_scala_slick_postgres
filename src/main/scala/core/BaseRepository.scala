@@ -6,6 +6,7 @@ import slick.lifted.{CanBeQueryCondition, Rep, TableQuery}
 import scala.concurrent.Future
 import scala.reflect._
 import PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 
 import java.util.UUID
 
@@ -22,7 +23,7 @@ trait BaseRepositoryComponent[T <: BaseTable[E], E <: BaseEntity] {
   def getAll : Future[Seq[E]]
   def filter[C <: Rep[_]](expr: T => C)(implicit wt: CanBeQueryCondition[C]): Future[Seq[E]]
   def save(row: E) : Future[E]
-  def deleteById(id: Long) : Future[Int]
+  def deleteById(id: String) : Future[Int]
   def updateById(id: String, row: E) : Future[Int]
 }
 

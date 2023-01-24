@@ -41,17 +41,10 @@ package object Controllers {
                            lastName: String,
                            address: String,
                            phoneNumber: String,
-                           age: Long)
+                           age: Long,
+                           isDeleted: Boolean)
 
     object EmployeePutJsonProtocol extends DefaultJsonProtocol {
-      implicit object TimestampFormat extends JsonFormat[Timestamp] {
-        def write(obj: Timestamp) = JsNumber(obj.getTime)
-
-        def read(json: JsValue) = json match {
-          case JsNumber(time) => new Timestamp(time.toLong)
-          case _ => throw DeserializationException("Timestamp expected")
-        }
-      }
 
       implicit val employeePutRepoFormat = jsonFormat(
         PutEmployee,
@@ -60,7 +53,8 @@ package object Controllers {
         "last_name",
         "address",
         "phone_number",
-        "age"
+        "age",
+        "is_deleted"
       )
     }
 

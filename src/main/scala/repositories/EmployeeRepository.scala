@@ -63,7 +63,7 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     val updatedBy = Some(20L)
     val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
     val createdBy = 10L
-
+    val createdAt = getEmpById(row.uuid).map(_.map(_.createdAt)).map(_.getOrElse(""))
 
     super.updateById(id,
       DbEmployee(
@@ -75,12 +75,9 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
         row.age,
         Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())),
         createdBy,
-        false,
+        row.isDeleted,
         updatedAt,
         updatedBy))
-    //MAKE SURE EMPOLYEE UR ABOUT TO UPDATE EXIT IN DB OR NOT ELSE THROW EEROR TO USER WITH APPROPIATE MESSAGE
-
-
   }
 
   def insertItem(row: Employee): Future[Option[DbEmployee]] = {
