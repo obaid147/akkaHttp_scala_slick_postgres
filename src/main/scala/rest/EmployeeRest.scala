@@ -7,16 +7,22 @@ import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Extraction}
-import Controllers.models.PatchEmployee
+import Controllers.models.{PatchEmployee, PutEmployee}
 import repositories.models.{Employee => DbEmployee}
+import Controllers.models.Employee
+import org.json4s.jackson.Json
+import spray.json.enrichAny
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.Try
 
 class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
 
   implicit val system: ActorSystem = ActorSystem.create("Test")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val f: DefaultFormats.type = DefaultFormats
+
 
   val routes: Route =
   path("employee" / JavaUUID) { id =>
@@ -33,14 +39,17 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
         authorize(validateApiKey(token)) {
           entity(as[String]) { data =>
             complete {
-              controller.insertEmployeeController(data).map { result =>
-                HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+              controller.insertEmployeeController(data).map {
+                case Some(result) =>
+                  HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+                case None =>
+                  HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, "Invalid Input"))
               }
             }
           }
         }
       }
-    } ~ get {
+    }~ get {
       complete {
         controller.getAllEmployees().map { result => // get all employees
           HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
@@ -58,20 +67,26 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
       entity(as[String]) { data =>
         complete {
           //val emp = parse(data).extract[DbEmployee]
-          controller.putEmployee(data).map { result =>
+          controller.putEmployee(data).map {
+            case result =>
             HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+            case 0 =>
+              HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(0))))
           }
         }
       }
     } ~ patch {
-    entity(as[String]) { data =>
-      complete {
-        controller.patchEmployee(data).map { result =>
-          HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+      entity(as[String]) { data =>
+        complete {
+          controller.patchEmployee(data).map {
+            case result =>
+              HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+            case 0 =>
+              HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(0))))
+          }
         }
       }
     }
-  }
   }
     /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {

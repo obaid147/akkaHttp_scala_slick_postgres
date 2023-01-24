@@ -5,13 +5,14 @@ import repositories.models.{Employee => DbEmployee}
 import core.BaseRepository
 import slick.lifted.TableQuery
 import Entities.EmployeeTable
+import akka.http.scaladsl.model.StatusCodes
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 /** PUT
  * create a method putEmployee here and pass DbEmployee argument
  * then inside putEmplyee create updated_by and updated_at fields with values and then create DB Employee case class

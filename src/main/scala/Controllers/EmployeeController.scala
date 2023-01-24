@@ -33,7 +33,6 @@ object EmployeeController extends EmployeeControllerComponent {
     ImplEmployeeRepository.getAll
   }
   def insertEmployeeController(data: String): Future[Option[EmployeeResult]] = {  // spray-json
-
     val employeeTry = Try(data.parseJson.convertTo[Employee])
 
     employeeTry match {
@@ -42,14 +41,27 @@ object EmployeeController extends EmployeeControllerComponent {
 
       case Failure(f) =>
         println(f.getMessage)
-        Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
-          message = "some msg", exception = new Exception(f.getCause)))
+        /*Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
+          message = "some msg", exception = new Exception(f.getCause)))*/
+        Future.successful(None)
     }
   }
 
   def putEmployee(data: String) = {
-    val emp = data.parseJson.convertTo[PutEmployee]
-    ImplEmployeeRepository.putEmployeeById(emp.uuid, emp)
+
+    /*val emp = data.parseJson.convertTo[PutEmployee] // handle validation error
+    ImplEmployeeRepository.putEmployeeById(emp.uuid, emp)*/
+
+    val putEmployeeTry = Try(data.parseJson.convertTo[PutEmployee])
+
+    putEmployeeTry match {
+      case Success(s) =>
+        ImplEmployeeRepository.putEmployeeById(s.uuid, s)
+
+      case Failure(f) =>
+        println(f.getMessage)
+        Future.successful(0)
+    }
 
   }
   override def getEmployeeById(uuid: String): Future[Option[EmployeeResult]] = {
@@ -61,20 +73,22 @@ object EmployeeController extends EmployeeControllerComponent {
   }
 
   def patchEmployee(data: String) = {
-    val emp = data.parseJson.convertTo[PatchEmployee]
-    ImplEmployeeRepository.patch(emp)
-    /*val employeeTry = Try(data.parseJson.convertTo[PatchEmployee])
+    /*val emp = data.parseJson.convertTo[PatchEmployee]
+    ImplEmployeeRepository.patch(emp)*/
+    val employeeTry = Try(data.parseJson.convertTo[PatchEmployee])
 
     employeeTry match {
-      case Success(v) =>
-        ImplEmployeeRepository.patch(v)
+      case Success(value) =>
+        ImplEmployeeRepository.patch(value)
       case Failure(ex) =>
-        println(ex.getMessage)
+        /*println(ex.getMessage)
         Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
-          message = "some msg", exception = new Exception(ex.getCause)))
-    }*/
-    //ImplEmployeeRepository.patch(id, row)
+          message = "some msg", exception = new Exception(ex.getCause)))*/
+        println(ex.getMessage)
+        Future.successful(0)
+    }
   }
+
 }
 
 trait MyException extends Exception
