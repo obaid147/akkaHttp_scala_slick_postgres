@@ -12,6 +12,8 @@ libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-jackson" % "4.0.6","joda-time" % "joda-time" % "2.12.2",
   "org.postgresql" % "postgresql" % "42.5.1",
   "io.spray" %%  "spray-json" % "1.3.6",
+  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.4.0" % Test
   /*"com.typesafe.akka" %% "akka-http-core" % "1.0",
   //"com.typesafe.akka" %% "akka-http" % "1.0",
   */
