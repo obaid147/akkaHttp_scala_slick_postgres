@@ -73,7 +73,7 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     val employeeRecord = getEmpById(id)
     val updatedBy = Some(20L)
     val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
-    val createdBy = 10L
+    //val createdBy = 10L
 
     employeeRecord.flatMap { record =>
       record.map { emp =>
@@ -86,7 +86,7 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
             row.phoneNumber,
             row.age,
             emp.createdAt,
-            createdBy,
+            emp.createdBy,
             row.isDeleted,
             updatedAt,
             updatedBy))
