@@ -5,14 +5,11 @@ import repositories.models.{Employee => DbEmployee}
 import core.BaseRepository
 import slick.lifted.TableQuery
 import Entities.EmployeeTable
-import akka.http.scaladsl.model.StatusCodes
-
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
 /** PUT
  * create a method putEmployee here and pass DbEmployee argument
  * then inside putEmplyee create updated_by and updated_at fields with values and then create DB Employee case class
@@ -69,30 +66,45 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
 
   }
 
-  def putEmployeeById(id: String, row: PutEmployee)= {
+  def compareEmployees(row: PutEmployee, emp: DbEmployee): Boolean = {
+      row.firstName == emp.firstName &&
+      row.lastName == emp.lastName &&
+      row.address == emp.address &&
+      row.phoneNumber == emp.phoneNumber &&
+      row.age == emp.age &&
+      row.isDeleted == emp.isDeleted
+  }
+
+  def putEmployeeById(id: String, row: PutEmployee): Future[Int] = {
     val employeeRecord = getEmpById(id)
-    val updatedBy = Some(20L)
-    val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
-    //val createdBy = 10L
 
     employeeRecord.flatMap { record =>
       record.map { emp =>
-        super.updateById(id,
-          DbEmployee(
-            row.uuid,
-            row.firstName,
-            row.lastName,
-            row.address,
-            row.phoneNumber,
-            row.age,
-            emp.createdAt,
-            emp.createdBy,
-            row.isDeleted,
-            updatedAt,
-            updatedBy))
+        if (compareEmployees(row, emp)) {
+          println("You entered the same data...")
+          Future.successful(1)
+        } else {
+          val updatedBy = Some(20L)
+          val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
+
+          super.updateById(id,
+            DbEmployee(
+              row.uuid,
+              row.firstName,
+              row.lastName,
+              row.address,
+              row.phoneNumber,
+              row.age,
+              emp.createdAt,
+              emp.createdBy,
+              row.isDeleted,
+              updatedAt,
+              updatedBy))
+        }
       }.getOrElse(Future.successful(0))
     }
   }
+
 
   def insertItem(row: Employee): Future[Option[DbEmployee]] = {
     val userId = 10
