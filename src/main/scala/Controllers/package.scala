@@ -45,7 +45,11 @@ package object Controllers {
                            isDeleted: Boolean)
 
     object EmployeePutJsonProtocol extends DefaultJsonProtocol {
+      /*implicit val timestampFormat: JsonFormat[Timestamp] = new JsonFormat[Timestamp] {
+        override def write(obj: Timestamp): JsValue = JsNumber(obj.getTime)
 
+        override def read(json: JsValue): Timestamp = new Timestamp(json.convertTo[Long])
+      }*/
       implicit val employeePutRepoFormat = jsonFormat(
         PutEmployee,
         "uuid",

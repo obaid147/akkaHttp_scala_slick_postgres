@@ -30,19 +30,25 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
   def patch(row: PatchEmployee) = {
 
     val emp = getEmpById(row.uuid)
-    //if (emp.map(_.isDefined) == Future(false)) throw new IllegalArgumentException("Employee Does not exist!!!")
 
-    val createdBy = 10L
+    val createdByFuture = emp.map(_.map(_.createdBy)).map(_.getOrElse(1L))
     val lastNameFuture = emp.map(_.map(_.lastName)).map(_.getOrElse(""))
     val phoneNumberFuture = emp.map(_.map(_.phoneNumber)).map(_.getOrElse(""))
+    val createdAtFuture = emp.map(_.map(_.createdAt)).map(_.get)
+    val updatedAt = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
+    val updatedBy = 100L
+    val isDeletedFuture = emp.map(_.map(_.isDeleted)).map(_.getOrElse(false))
 
     val updateFuture = for {
       lastName <- lastNameFuture
       phoneNumber <- phoneNumberFuture
-    } yield (lastName, phoneNumber)
+      createdAt <- createdAtFuture
+      createdBy <- createdByFuture
+      isDeleted <- isDeletedFuture
+    } yield (lastName, phoneNumber, createdAt, createdBy, isDeleted)
 
     updateFuture.flatMap {
-      case (lastName, phoneNumber) =>
+      case (lastName, phoneNumber, createdAt, createdBy, isDeleted) =>
         super.updateById(
           row.uuid,
           DbEmployee(
@@ -52,8 +58,11 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
             row.address,
             phoneNumber,
             row.age,
-            Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())),
-            createdBy
+            createdAt,
+            createdBy,
+            isDeleted,
+            Some(updatedAt),
+            Some(updatedBy)
           )
         )
     }
@@ -61,24 +70,28 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
   }
 
   def putEmployeeById(id: String, row: PutEmployee)= {
+    val employeeRecord = getEmpById(id)
     val updatedBy = Some(20L)
     val updatedAt = Some(Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())))
     val createdBy = 10L
-    val createdAt = getEmpById(row.uuid).map(_.map(_.createdAt)).map(_.getOrElse(""))
 
-    super.updateById(id,
-      DbEmployee(
-        row.uuid,
-        row.firstName,
-        row.lastName,
-        row.address,
-        row.phoneNumber,
-        row.age,
-        Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date())),
-        createdBy,
-        row.isDeleted,
-        updatedAt,
-        updatedBy))
+    employeeRecord.flatMap { record =>
+      record.map { emp =>
+        super.updateById(id,
+          DbEmployee(
+            row.uuid,
+            row.firstName,
+            row.lastName,
+            row.address,
+            row.phoneNumber,
+            row.age,
+            emp.createdAt,
+            createdBy,
+            row.isDeleted,
+            updatedAt,
+            updatedBy))
+      }.getOrElse(Future.successful(0))
+    }
   }
 
   def insertItem(row: Employee): Future[Option[DbEmployee]] = {
