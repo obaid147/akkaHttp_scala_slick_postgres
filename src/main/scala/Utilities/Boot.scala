@@ -11,7 +11,7 @@ import rest.EmployeeRest
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait EmployeeRestService extends RouteConcatenation with CORSSupport with GeneralActors {
-  override val contextRoot: String = "datafoundry"
+  override val contextRoot: String = "company"
   val routes: Route = allRoutes
 
   override implicit def system: ActorSystem = ActorSystemContainer.system
