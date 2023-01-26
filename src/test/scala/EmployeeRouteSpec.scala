@@ -28,7 +28,10 @@ class EmployeeRouteSpec extends WordSpec with Matchers with ScalatestRouteTest {
       Post("/company/employee", jsonRequest) ~> myRoute ~> check {
         status should be(StatusCodes.Created)
         val response = entityAs[Employee]
+
         response shouldBe newEmployee
+
+        myEmployee should contain(newEmployee)
       }
     }
 
