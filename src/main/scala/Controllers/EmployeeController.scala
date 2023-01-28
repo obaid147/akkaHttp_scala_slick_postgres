@@ -23,12 +23,22 @@ abstract class EmployeeControllerComponent  {
   def putEmployee(data: String): Future[Int]
 
   def patchEmployee(data: String): Future[Int]
+
+  def insertEmployeeTwice(data: String): Future[EmployeeResult]
 }
 
 object EmployeeController extends EmployeeControllerComponent {
 
+
   import EmployeeJsonProtocol._
   import EmployeePutJsonProtocol._
+
+
+  def insertEmployeeTwice(data: String): Future[EmployeeResult] = {
+    val employee = data.parseJson.convertTo[Employee]
+    ImplEmployeeRepository.insertTwice(employee)
+  }
+
   def getAllEmployees() = {
     ImplEmployeeRepository.getAll
   }

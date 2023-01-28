@@ -2,7 +2,7 @@ package rest
 
 import Controllers.EmployeeControllerComponent
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, MediaTypes, StatusCodes}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, MediaTypes, StatusCodes}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.ActorMaterializer
 import org.json4s.jackson.JsonMethods._
@@ -38,6 +38,7 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
       headerValueByName("apiKey") { token => // Save an employee
         authorize(validateApiKey(token)) {
           entity(as[String]) { data =>
+            //json validations etc
             complete {
               controller.insertEmployeeController(data).map {
                 case Some(result) =>
@@ -87,6 +88,16 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
         }
       }
     }
+  } ~ path("transaction") {
+      post {
+        entity(as[String]) { data =>
+          complete {
+            controller.insertEmployeeTwice(data).map { res =>
+              HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(res))))
+            }
+          }
+        }
+      }
   }
     /*~ path("employee" / "employeeId" / LongNumber) { id =>
      delete {

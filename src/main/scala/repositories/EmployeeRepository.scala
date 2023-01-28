@@ -120,6 +120,19 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
     } yield result
   }
 
+  def insertTwice(row: Employee): Future[DbEmployee] = {
+    val userId = 10
+    val uuid = UUID.randomUUID().toString
+    val timeStamp = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
+    val saveData1 = DbEmployee(uuid, row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
+    val lengthLastName = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec" //todo edit it
+    val saveData2 = DbEmployee(uuid, row.firstName, lengthLastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
+    insertTwoRows(saveData1, saveData2)
+    //todo: if transaction is success,
+    //1.) check what error goes to user: note that down here and show to aamir
+    // 2.) let's see how we can modify that to return user defined error and error code to user.
+  }
+
   override def getAll: Future[Seq[DbEmployee]] = super.getAll
 
   /*def getEmployees = {
@@ -143,6 +156,17 @@ abstract class EmployeeRepository  extends BaseRepository[EmployeeTable, DbEmplo
 
   override def deleteById(id: String) = {
     super.deleteById(id)
+  }
+
+  def insert(row: Employee): Future[Option[DbEmployee]] = {
+    val userId = 10
+    val uuid = UUID.randomUUID().toString
+    val timeStamp = Timestamp.valueOf(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.util.Date()))
+    val saveData = DbEmployee(uuid, row.firstName, row.lastName, row.address, row.phoneNumber, row.age, timeStamp, userId)
+
+    //todo: we have to do this in transaction
+    //todo: use UUID instead of string for uuid unique column
+    insertAndFetch(saveData)
   }
 
 
