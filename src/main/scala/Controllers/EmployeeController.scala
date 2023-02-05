@@ -42,17 +42,14 @@ object EmployeeController extends EmployeeControllerComponent {
   def getAllEmployees() = {
     ImplEmployeeRepository.getAll
   }
-  def insertEmployeeController(data: String): Future[Option[EmployeeResult]] = {  // spray-json
-    val employeeTry = Try(data.parseJson.convertTo[Employee])
 
-    employeeTry match {
-      case Success(s) =>
-        ImplEmployeeRepository.insertItem(s)
+  def insertEmployeeController(data: String): Future[Option[EmployeeResult]] = {
+    val employee = data.parseJson.convertTo[Employee]
 
-      case Failure(f) =>
-        println(f.getMessage)
-        /*Future.failed(InvalidInputException(ErrorCodes.INVALID_INPUT_EXCEPTION,
-          message = "some msg", exception = new Exception(f.getCause)))*/
+    employee match {
+      case emp =>
+        ImplEmployeeRepository.insertItem(emp)
+      case _ =>
         Future.successful(None)
     }
   }

@@ -10,8 +10,9 @@ import org.json4s.{DefaultFormats, Extraction}
 import Controllers.models.{PatchEmployee, PutEmployee}
 import repositories.models.{Employee => DbEmployee}
 import Controllers.models.Employee
+import cats.data.Validated
 import org.json4s.jackson.Json
-import spray.json.enrichAny
+import spray.json.{JsObject, JsValue, enrichAny}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -23,6 +24,17 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val f: DefaultFormats.type = DefaultFormats
 
+  import cats.data.Validated
+  import cats.implicits._
+  import spray.json._
+  def validateKeys(json: JsValue): Validated[String, JsObject] =
+    json match {
+      case obj: JsObject =>
+        val keys = Seq("first_name", "last_name", "address", "phone_number", "age")
+        val missingKeys = keys.filterNot(obj.fields.contains)
+        Validated.cond(missingKeys.isEmpty, obj, s"Object is missing required member(s): ${missingKeys.mkString(", ")}")
+      case _ => "Not a JSON object".invalid
+    }
 
   val routes: Route =
   path("employee" / JavaUUID) { id =>
@@ -38,13 +50,24 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
       headerValueByName("apiKey") { token => // Save an employee
         authorize(validateApiKey(token)) {
           entity(as[String]) { data =>
-            //json validations etc
+            val employeeTry = Try(data.parseJson)
+
+            val employeeValidated = for {
+              json <- employeeTry.toEither
+              validated <- validateKeys(json).toEither
+            } yield validated
+
             complete {
-              controller.insertEmployeeController(data).map {
-                case Some(result) =>
-                  HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
-                case None =>
-                  HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, "Invalid Input"))
+              employeeValidated match {
+              case Right(_) =>
+                controller.insertEmployeeController(data).map {
+                  case Some(result) =>
+                    HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+                  case None =>
+                    HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, "Invalid Data"))
+                }
+              case Left(error) =>
+                HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, error.toString))
               }
             }
           }

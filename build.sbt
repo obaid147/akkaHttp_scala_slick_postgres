@@ -15,9 +15,11 @@ libraryDependencies ++= Seq(
   "io.spray" %%  "spray-json" % "1.3.6",
   "org.scalatest" %% "scalatest" % "3.1.3" % Test,
   "com.typesafe.akka" %% "akka-http-testkit" % "10.4.0" % Test,
-  "com.typesafe.akka" %% "akka-stream-testkit" % "2.7.0"
+  "com.typesafe.akka" %% "akka-stream-testkit" % "2.7.0",
   /*"com.typesafe.akka" %% "akka-http-core" % "1.0",
   //"com.typesafe.akka" %% "akka-http" % "1.0",
   */
+  /*Cats library*/
+  "org.typelevel" %% "cats-core" % "2.2.0"
 )
 
