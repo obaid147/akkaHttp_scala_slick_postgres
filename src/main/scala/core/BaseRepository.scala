@@ -44,6 +44,7 @@ trait BaseRepositoryQuery[T <: BaseTable[E], E <: BaseEntity] {
   }
 
   def insertTwoRowsQuery(row1: E, row2:E) = {
+    // employeeid skipping
     (for {
       _ <- query returning query += row1
       r <- query returning query += row2
