@@ -83,8 +83,12 @@ class EmployeeRest(controller: EmployeeControllerComponent) extends Directives {
   } ~ path("employee" / JavaUUID) { id => // delete an employee by updating IsDeleted Field
     delete {
       complete {
-        controller.deleteById(id.toString).map { result =>
-          HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+        controller.deleteById(id.toString).map {
+          case result if result == 1 =>
+            HttpResponse(status = StatusCodes.OK, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose(result))))
+          case _ =>
+            HttpResponse(status = StatusCodes.BadRequest, entity = HttpEntity(MediaTypes.`application/json`, compact(Extraction.decompose("uuid not found"))))
+
         }
       }
     } ~  put {
